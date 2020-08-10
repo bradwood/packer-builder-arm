@@ -43,37 +43,12 @@
         # packages:
         # - ca-certificates
 
-        # users:
-        # - default
-        # - name: bqw
-        #   shell: /bin/bash
-        #   sudo: [ "ALL=(ALL) NOPASSWD:ALL" ]
-        #   primary-group: bqw
-        #   # mkpasswd -m sha512crypt
-        #   passwd: $6$1vs7yRU1vKKJLI7$Em1bEIIomig0fb4haK6BIfKDBjyJDy9tw7588APlc7MvkO4QpmRMAriV3Rth7IURADcmfrjiRlnNCTZzvPnrf0
-        #   lock_passwd: False
-        #   ssh-authorized-keys:
-        #     - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDGs8F0zbHCStQQrVP106igaD6kZl7aoBRUSkPx6TGb4/fcRBctBzy/W3iJis5cFrCO2lxRf4gJjdfUuexNpcLsVGJEcW2GNA0HWSv5GC3wQRn+RxspxKIC9Los7M0z/35yYzAqaPfrthOMYqrjA6dXlQ1geLyteKI6Q5v+cyNLGnQMG9PvBEYK4zerL/fd5fCdY3TDUDy7pMpBuODdZBNtwrYVABh69I/CqW7FwALyjOtmfsNSTULoCyA6t7UyRbknKVzDU3nDFJtp2pxTvQ/fnAEP2r8vwPPSiWqke6AkO0zKSfPnosOB3gJd8W2/OAAEvy++XIutYmNwP3LjHkwwV0/Nh9fkp28HtcgTvDUp+Sdc3MQH2OqMZsJkHlHmA0FYHU6ZhjOtXexSjBw8AmwwMeRlC3ZHLKSiLpmye9OSMXBevNJvlz8TrL2DOfupEjRWfqOLTIfXz/4n0178vH546R6mAAnS9zP9pUr5UXFjLkMD7TlNGRf1ngOzlLugV8E= beast
-
-        # ssh_authorized_keys:
-        # - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDGs8F0zbHCStQQrVP106igaD6kZl7aoBRUSkPx6TGb4/fcRBctBzy/W3iJis5cFrCO2lxRf4gJjdfUuexNpcLsVGJEcW2GNA0HWSv5GC3wQRn+RxspxKIC9Los7M0z/35yYzAqaPfrthOMYqrjA6dXlQ1geLyteKI6Q5v+cyNLGnQMG9PvBEYK4zerL/fd5fCdY3TDUDy7pMpBuODdZBNtwrYVABh69I/CqW7FwALyjOtmfsNSTULoCyA6t7UyRbknKVzDU3nDFJtp2pxTvQ/fnAEP2r8vwPPSiWqke6AkO0zKSfPnosOB3gJd8W2/OAAEvy++XIutYmNwP3LjHkwwV0/Nh9fkp28HtcgTvDUp+Sdc3MQH2OqMZsJkHlHmA0FYHU6ZhjOtXexSjBw8AmwwMeRlC3ZHLKSiLpmye9OSMXBevNJvlz8TrL2DOfupEjRWfqOLTIfXz/4n0178vH546R6mAAnS9zP9pUr5UXFjLkMD7TlNGRf1ngOzlLugV8E= beast
-
         ssh_pwauth: True
-
-        # password: $6$1vs7yRU1vKKJLI7$Em1bEIIomig0fb4haK6BIfKDBjyJDy9tw7588APlc7MvkO4QpmRMAriV3Rth7IURADcmfrjiRlnNCTZzvPnrf0
-
-        # chpasswd:
-        #   expire: true
-        #   list:
-        #   - ubuntu:ubuntu
-        #   - bqw:$6$1vs7yRU1vKKJLI7$Em1bEIIomig0fb4haK6BIfKDBjyJDy9tw7588APlc7MvkO4QpmRMAriV3Rth7IURADcmfrjiRlnNCTZzvPnrf0
 
         locale: en_GB.UTF-8
         locale_configfile: /etc/default/locale
 
         timezone: Europe/London
-
-        # resize_rootfs: True
 
         # we will handle these separately via script later
         preserve_hostname: True
@@ -92,32 +67,31 @@
         runcmd:
         - [ sh, -c, 'hostnamectl set-hostname $(/usr/local/bin/gen-hostname eth0)' ]
         - [ sh, -c, 'echo 127.0.0.1 localhost > /etc/hosts' ]
-        - [ sh, -c, 'host=$(/usr/local/bin/gen-hostname eth0) echo 127.0.1.1 ${host}.b5y.gs ${host} >> /etc/hosts' ]
+        - [ sh, -c, 'HOST=$(/usr/local/bin/gen-hostname eth0) echo 127.0.1.1 ${HOST}.b5y.gs ${HOST} >> /etc/hosts' ]
 
-        # power_state:
-        #   delay: "now"
-        #   mode: reboot
-        #   message: Rebooting to enable cgroups
-        #   timeout: 30
+        power_state:
+          delay: "now"
+          mode: reboot
+          message: Rebooting to enable cgroups
+          timeout: 30
 
         final_message: "The BEAST has arisen!"
 
         # end of user-data
 
       dest: /etc/cloud/cloud.cfg.d/999-beast.cfg
-      # dest: /boot/firmware/user-data
 
   - name: Enable IPv4 forwarding (as k3s needs it)
     sysctl:
       name: net.ipv4.ip_forward
       value: "1"
       state: present
-      reload: False
+      reload: false
 
   - name: Enable cgroup via boot commandline if not already enabled
     lineinfile:
       path: /boot/firmware/cmdline.txt
-      backrefs: True
+      backrefs: true
       regexp: '^((?!.*\bcgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory\b).*)$'
       line: '\1 cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory'
 
@@ -160,6 +134,15 @@
       owner: bqw
       group: bqw
       mode: '0600'
+
+  - name: copy bqw's sudoer's into place
+    copy:
+      content: |
+        bqw ALL=(ALL) NOPASSWD:ALL
+      dest: /etc/sudoers.d/95-bqw
+      owner: root
+      group: root
+      mode: '0440'
 
   - name: Remove useless packages from the cache
     apt:
