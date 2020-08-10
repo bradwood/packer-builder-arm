@@ -1,0 +1,27 @@
+#!/bin/bash
+ip_cidr=$(ip addr show $1 | grep global | awk '{print $2}' )
+
+# hostnames 
+# - mgmt1,   10.40.1.2
+# - worker1, 10.40.0.11
+# - worker2, 10.40.0.12
+# - worker3, 10.40.0.13
+# - worker4, 10.40.0.14
+# - worker5, 10.40.0.15
+# - worker6, 10.40.0.16
+# - ctrl1,   10.40.0.111
+# - ctrl2,   10.40.0.112
+
+regex_mgmt="^10\.40\.1\.[0-9]{1}/.*$"
+regex_worker="^10\.40\.0\.[0-9]{2}/.*$"
+regex_ctrl="^10\.40\.0\.1[0-9]{2}/.*$"
+
+if [[ "${ip_cidr}" =~ $regex_mgmt ]]; then
+  echo "mgmt$(echo $ip_cidr | sed 's/\/.*//' | cut -f4 -d\. | awk {'print $1-1'})"
+elif [[ "${ip_cidr}" =~ $regex_worker ]]; then
+  echo "worker$(echo $ip_cidr | sed 's/\/.*//' | cut -f4 -d\. | awk {'print $1-10'})"
+elif [[ "${ip_cidr}" =~ $regex_ctrl ]]; then
+  echo "ctrl$(echo $ip_cidr | sed 's/\/.*//' | cut -f4 -d\. | awk {'print $1-100'})"
+else
+  echo "node"
+fi
