@@ -67,7 +67,7 @@
         runcmd:
         - [ sh, -c, 'hostnamectl set-hostname $(/usr/local/bin/gen-hostname eth0)' ]
         - [ sh, -c, 'echo 127.0.0.1 localhost > /etc/hosts' ]
-        - [ sh, -c, 'HOST=$(/usr/local/bin/gen-hostname eth0) echo 127.0.1.1 ${HOST}.b5y.gs ${HOST} >> /etc/hosts' ]
+        - [ sh, -c, 'echo 127.0.1.1 $(/usr/local/bin/gen-hostname eth0).b5y.gs $(/usr/local/bin/gen-hostname eth0) >> /etc/hosts' ]
         - [ sh, -c, 'passwd -l ubuntu' ]
 
         power_state:
